@@ -6,22 +6,24 @@ public class Server {
         int PORT = 4568;
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-             System.out.println("Server running on port " + PORT + "... Waiting for client...");
+            System.out.println("Server is running… Waiting for client...");
 
             try (Socket socket = serverSocket.accept();
-                 BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                 PrintWriter output = new PrintWriter(socket.getOutputStream(), true)) {
+                    BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    PrintWriter output = new PrintWriter(socket.getOutputStream(), true)) {
 
                 System.out.println("Client connected: " + socket.getInetAddress());
 
-                // Read two numbers
-                int a = Integer.parseInt(input.readLine());
-                int b = Integer.parseInt(input.readLine());
+                String clientMessage;
+                while ((clientMessage = input.readLine()) != null) {
+                    System.out.println("Client: " + clientMessage);
 
-                System.out.println("Received numbers: " + a + ", " + b);
-
-                // Send result
-                output.println(a + b);
+                    if (clientMessage.equalsIgnoreCase("exit")) {
+                        System.out.println("Client disconnected.");
+                        break;
+                    }
+                    output.println("Server: " + clientMessage + " good morning");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
