@@ -1,50 +1,24 @@
 import socket
 
-HOST = '127.0.0.1'
-PORT = 4568
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(('localhost', 5000))
 
-def sendable_data(data):
-    return str(data).encode('utf-8')
+print("Server started at ", 5000)
+server.listen(1)
+conn, addr = server.accept()
+print(f"This is the adddress {addr}")
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    print("Server is running.....")
-    s.listen()
+while True:
+    client_msg = conn.recv(1024).decode()
+    if client_msg.lower() == 'exit':
+        print("[Client] ended the chat")
+        break
+    print(f"[Client]: {client_msg}")
 
-    conn, addr = s.accept()
+    send_msg = input('[Server]: ')
+    if send_msg.lower() == 'exit':
+        break
+    conn.send(send_msg.encode())
 
-    with conn:
-        print("Client is connected...")
-        while True:
-            data = conn.recv(1024).decode('utf-8')
-            if not data:
-                break
-
-            print(f"Received from client: {data}")
-
-            if data.lower() == 'exit':
-                conn.sendall(sendable_data("Connection is closed! Bye."))
-                break
-            elif data.lower() == 'hello':
-                response = "Server: Hello Good Morning"
-            elif data.lower().startswith("add "):
-                try:
-                    parts = data.split()
-                    a = int(parts[1])
-                    b = int(parts[2])
-                    result = a+b
-                    response = f"Addition of {a} and {b} is {result}"
-                except:
-                    response = "Error: Please provide two numbers. Format: add 5 10"
-            elif data.lower().startswith("square "):
-                try:
-                    parts = data.split()
-                    a = int(parts[1])
-                    result = a * a
-                    response = f"Square of {a} is {result}"
-                except:
-                    response = "Error: Please provide one number. Format: square 6"
-            else:
-                response = f"Server received: {data}"
-
-            conn.sendall(sendable_data(response))
+conn.close()
+server.close()

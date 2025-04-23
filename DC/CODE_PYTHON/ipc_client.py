@@ -1,27 +1,25 @@
 import socket
 
-HOST = "127.0.0.1"
-PORT = 4568
+port = 5000
+client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def sendable_data(data):
-    return str(data).encode("utf-8")
+print("Client is Starting.....")
+client.connect(('localhost', port))
 
-if __name__ == "__main__":
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect((HOST, PORT))
-        print("Connected to server…")
-        print("Commands:")
-        print("  hello             - Greeting")
-        print("  add <a> <b>       - Add two numbers")
-        print("  square <a>        - Square a number")
-        print("  exit              - Disconnect")
-        
-        while True:
-            msg = input("Enter msg for server: ")
-            s.sendall(sendable_data(msg))
+print(f"Client started at port {port}")
+print("Enter the message You want to send (exit to end the conn)")
 
-            response = s.recv(1024).decode("utf-8")
-            print(f"Process 1: {response}")
+while True:
+    input_msg = input("[Client]: ")
+    client.send(input_msg.encode())
+    if input_msg.lower() == 'exit':
+        print("[Client]: Ended the chat....")
+        break
 
-            if msg.lower() == "exit":
-                break
+    server_msg = client.recv(1024).decode()
+    if server_msg.lower() == 'exit':
+        print("[Server]: Ended the chat....")
+        break
+    print(f"[Server]: {server_msg}")
+
+client.close()

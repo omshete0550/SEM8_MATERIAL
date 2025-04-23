@@ -1,37 +1,37 @@
 import socket
 import threading
 
-def receive_message(client_socket):
+def receive_msg(client_socket):
     while True:
         try:
-            reply = client_socket.recv(1024).decode('UTF-8')
+            reply = client_socket.recv(1024).decode()
             if reply:
-                print(reply)
+                print(f"\nReply: {reply}")
             else:
                 break
         except:
             break
-    
-    print("Disconnectd from server.")
+
+    print("Disconnected from server.")
     client_socket.close()
 
 def start_client():
-    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
-        client_socket.connect(('localhost', 8888))
-        print("Connected to server.")
+        client.connect(('localhost', 8888))
+        print("Connected to server...")
         name = input("Enter your name: ")
-        client_socket.send(name.encode('utf-8'))
+        client.send(name.encode('utf-8'))
 
-        threading.Thread(target=receive_message, args=(client_socket, ), daemon=True).start()
-
+        threading.Thread(target=receive_msg, args=(client, ), daemon=True).start()
         while True:
-            message = input()
-            if message:
-                client_socket.send(message.encode('utf-8'))
-        
+            msg = input("\nEnter the message: ")
+            if msg:
+                client.send(msg.encode('utf-8'))
+
+
     except Exception as e:
-        print(f"Connection error: {e}")
-        client_socket.close()
+        print(f"Connection error {e}")
+        client.close()
 
 start_client()

@@ -1,39 +1,27 @@
+import time
 import threading
 
-def is_prime(n):
-    if n <= 1:
-        return False
-    for i in range(2, n):
-        if n % i == 0:
-            return False
-    return True
+lock = threading.Lock()
+ctr = 0
 
-# Create thread functions to generate prime numbers and Fibonacci sequence
-def generate_primes(num):
-    for i in range(2, num+1):
-        if is_prime(i):
-            print(f"Prime: {i}", end="\n")
+def inc(name):
+    global ctr
+    for _ in range(5):
+        time.sleep(0.5)
+        with lock:
+            ctr = ctr + 1
+            print(f"[{name}] : {ctr}")
 
-def generate_fibonacci(num):
-    a = 0
-    b = 1
-    if num >= 1:
-        print("Fibo 1: ", a, end="\n")
-    if num >= 2:
-        print("Fibo 2: ", b, end="\n")
-    if num >= 3:
-        for i in range(2, num):
-            c = a + b
-            print("Fibo {}: ".format(i+1), c, end="\n")
-            a = b
-            b = c
+def monitor(name):
+    time.sleep(0.75)
+    print(f"[{name}] : {ctr}")
 
-# Create and start threads to generate prime numbers and Fibonacci sequence
-prime_thread = threading.Thread(target=generate_primes, args=(20,))
-fibonacci_thread = threading.Thread(target=generate_fibonacci, args=(10,))
-prime_thread.start()
-fibonacci_thread.start()
+t1 = threading.Thread(target=inc, args=('Thread-1', ))
+t2 = threading.Thread(target=inc, args=('Thread-2', ))
+threading.Thread(target=monitor, args=('Moni', ), daemon=True).start()
 
-# Wait for the threads to finish
-prime_thread.join()
-fibonacci_thread.join()
+t1.start()
+t2.start()
+
+t1.join()
+t2.join()
